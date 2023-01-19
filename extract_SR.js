@@ -25,7 +25,7 @@ var buffArea = function(feature) {
 // Code adapted from:
 // https://gis.stackexchange.com/questions/302760/imagecollection-map-with-multiple-input-function
 // Here, imageProperty is the propery of the image, defined by GEE. For example,
-// "CLOUD_COVER", "CLOUD_COVER_LAND", "LANDSAT_ID" for Landsat8.
+// "CLOUD_COVER", "LANDSAT_ID" for Landsat8.
 // And fc_propertyName is the field (property) name the user desires.
 var setPropertiesFromImage = function(img, imageProperty, fc_propertyName) {
   var wrap = function(f_elem) {
@@ -156,26 +156,11 @@ sp_GEE_6Yrs = sp_GEE_6Yrs.map(function(fc){
 //print (sp_GEE_6Yrs);
 
 var makeFC = function(){
-  
   // Define an empty Collection for the iterator to fill
   var empty_fc = ee.FeatureCollection(ee.List([]));
-
-  // Iterate, and fill the (empty) collection
-  // NOTE!!! NOTE!!! NOTE!!! NOTE!!! NOTE!!! NOTE!!! NOTE!!! 
-  // "iterate" is not the best way to do this. "map" is better. See code in "mikko_treeSpecies"
-  // NOTE!!! NOTE!!! NOTE!!! NOTE!!! NOTE!!! NOTE!!! NOTE!!! 
-  var newfc = ee.FeatureCollection(dataset.iterate(getValsFromImage, empty_fc));
-  // print(newfc);
-
-  // Remove some unwanted properties, so that it is faster to export
-  newfc = removePropertyFromFeatureCollection(newfc, 'daterange');
-  newfc = removePropertyFromFeatureCollection(newfc, 'lat');
-  newfc = removePropertyFromFeatureCollection(newfc, 'lon');
-  newfc = removePropertyFromFeatureCollection(newfc, 'radsat_qa');
-  newfc = removePropertyFromFeatureCollection(newfc, 'sr_aerosol');
-  
-  return(newfc)
-}
+  var newfc = ee.FeatureCollection((dataset.map(getValsFromImage)).flatten()) ;
+  return(newfc);
+};
 
 // Export the FeatureCollection to a CSV file.
 // The created FeatureCollection will be exported to Google Drive,
